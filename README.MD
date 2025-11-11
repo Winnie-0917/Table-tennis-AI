@@ -1,10 +1,1 @@
-# requirements
-opencv-python>=4.8.0
-
-mediapipe>=0.10.0
-
-numpy>=1.24.0
-
-tensorflow>=2.13.0
-
-scikit-learn>=1.3.0
+# 分別將影片傳入good_input_movid、normal_input_movid、bad_input_movid資料夾進行訓練
