@@ -86,7 +86,7 @@ class PoseExtractor:
         # 指定輸出路徑，設定影片寫入器
         writer = None
         if output_video_path:
-            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            fourcc = cv2.VideoWriter_fourcc(*'avc1') 
             writer = cv2.VideoWriter(output_video_path, fourcc, fps, (width, height))
         
         
@@ -192,6 +192,7 @@ def main(input_folder, output_folder):
         output_video = os.path.join(output_folder, f"{i}.mp4")
         # 提取骨架並儲存到輸出影片
         extractor.extract_pose_from_video(input_video, output_video)
+        print(f"{input_video}處理完成")
         i += 1
     
     print(f"\n✓ 資料夾 {input_folder} 處理完成！")
