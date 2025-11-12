@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tabletennis-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend/data:/app/data
+      - ./backend/uploads:/app/uploads
+    environment:
+      - FLASK_ENV=production
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    restart: unless-stopped
+    networks:
+      - tabletennis-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tabletennis-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:5000
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - tabletennis-network
+
+networks:
+  tabletennis-network:
+    driver: bridge
+
+volumes:
+  backend-data:
