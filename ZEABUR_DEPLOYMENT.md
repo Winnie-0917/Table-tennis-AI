@@ -17,71 +17,81 @@
 
 ## 🚀 部署步驟
 
-### 1. 在 Zeabur 創建新專案
+### 方法一：使用 zeabur.json 自動部署（推薦）
 
-1. 登入 Zeabur Dashboard
-2. 點擊「Create Project」
-3. 選擇你的 GitHub 倉庫: `Winnie-0917/Table-tennis-AI`
+本專案已配置 `zeabur.json`，Zeabur 會自動識別前後端服務。
 
-### 2. 部署後端服務 (Backend)
+1. **登入 Zeabur Dashboard**
+   - 訪問: https://zeabur.com
+   - 連結你的 GitHub 帳號
 
-1. **選擇服務**
-   - Service Type: Git Repository
-   - Branch: `main`
-   - Root Directory: `backend`
+2. **創建新專案**
+   - 點擊「Create Project」
+   - 選擇「Deploy from GitHub」
+   - 選擇倉庫: `Winnie-0917/Table-tennis-AI`
+   - **不要選擇** Root Directory（保持空白）
+   - Zeabur 會自動偵測 `zeabur.json` 並部署兩個服務
 
-2. **設定環境變數**
-   點擊「Environment Variables」，添加：
-   ```
-   GEMINI_API_KEY=你的_Gemini_API_Key
-   PORT=5000
-   FLASK_ENV=production
-   DEBUG=False
-   ```
-
-3. **部署設定**
-   - Zeabur 會自動偵測 `Dockerfile`
-   - 等待構建完成（約 2-5 分鐘）
+3. **配置後端服務環境變數**
+   - 找到 `backend` 服務
+   - 點擊「Variables」
+   - 添加環境變數：
+     ```
+     GEMINI_API_KEY=你的_Gemini_API_Key
+     PORT=5000
+     FLASK_ENV=production
+     ```
 
 4. **取得後端 URL**
-   - 部署完成後，點擊「Networking」
-   - 複製服務的公開 URL，格式類似：
+   - 後端部署完成後，點擊「Networking」
+   - 點擊「Generate Domain」
+   - 複製 URL（例如：`https://backend-xxx.zeabur.app`）
+
+5. **配置前端服務環境變數**
+   - 找到 `frontend` 服務
+   - 點擊「Variables」
+   - 添加環境變數：
      ```
-     https://your-backend-service.zeabur.app
+     NEXT_PUBLIC_API_URL=https://backend-xxx.zeabur.app
+     ```
+   - **重要**: 替換成你實際的後端 URL
+
+6. **生成前端域名**
+   - 前端服務點擊「Networking」
+   - 點擊「Generate Domain」
+
+7. **更新後端 CORS**
+   - 回到後端服務的「Variables」
+   - 添加：
+     ```
+     ALLOWED_ORIGINS=https://frontend-xxx.zeabur.app
      ```
 
-### 3. 部署前端服務 (Frontend)
+### 方法二：手動選擇目錄部署
 
-1. **選擇服務**
-   - Service Type: Git Repository
-   - Branch: `main`
-   - Root Directory: `frontend`
+如果方法一不work，可以分別部署：
 
-2. **設定環境變數**
-   點擊「Environment Variables」，添加：
-   ```
-   NEXT_PUBLIC_API_URL=https://your-backend-service.zeabur.app
-   ```
-   ⚠️ **重要**: 將上面的 URL 替換成你實際的後端服務 URL
+#### 2.1 部署後端
 
-3. **部署設定**
-   - Zeabur 會自動偵測 `Dockerfile`
-   - 等待構建完成（約 3-7 分鐘）
+1. **創建服務**
+   - 在 Zeabur 專案中點擊「Add Service」
+   - 選擇「Git」
+   - 選擇倉庫: `Winnie-0917/Table-tennis-AI`
+   - **Root Directory**: `backend` ⬅️ 重要！
+   - 服務名稱: `backend`
 
-4. **啟用公開域名**
-   - 點擊「Networking」
-   - 點擊「Generate Domain」或綁定自訂域名
+2. **設定環境變數**（同上）
 
-### 4. 更新後端 CORS 設定
+#### 2.2 部署前端
 
-部署完成後，需要更新後端允許的前端域名：
+1. **創建服務**
+   - 在同一專案中再次點擊「Add Service」
+   - 選擇「Git」
+   - 選擇同一倉庫
+   - **Root Directory**: `frontend` ⬅️ 重要！
+   - 服務名稱: `frontend`
 
-1. 在 Zeabur Backend 服務中，更新環境變數：
-   ```
-   ALLOWED_ORIGINS=https://your-frontend-service.zeabur.app
-   ```
-
-2. 或者在 `backend/app.py` 中直接修改 CORS 設定後重新部署
+2. **設定環境變數**（同上）
 
 ## ✅ 驗證部署
 
