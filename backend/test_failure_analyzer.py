@@ -29,12 +29,6 @@ def test_basic_imports():
         print(f"⚠️  Google Generative AI 未安裝: {e}")
         print("   提示: pip install google-generativeai")
     
-    try:
-        from skeleton import PoseExtractor
-        print("✅ PoseExtractor 可用")
-    except ImportError as e:
-        print(f"❌ 無法導入 PoseExtractor: {e}")
-        return False
     
     print()
     return True

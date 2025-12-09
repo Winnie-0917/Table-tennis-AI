@@ -39,6 +39,9 @@ scheduler.start()
 # Global dictionary to store training tasks
 training_tasks = {}
 
+# Global model cache
+_model_cache = None
+
 
 def run_training_task(task_id, config):
     """在背景執行訓練任務"""
@@ -116,19 +119,45 @@ def analyze_video():
 
     try:
         # Lazy import to avoid heavy imports failing before server starts
-        from user_movid_predict import predict_video  # noqa: WPS433
-        result = predict_video(save_path)
-        if not result:
-            return jsonify({'error': '分析失敗或回傳結果為空'}), 500
-
-        # Normalize keys for frontend consumption
+        from user_movid_predict import predict_video, load_model  # noqa: WPS433
+        
+        # 使用快取的模型，避免每次請求都重新載入
+        global _model_cache
+        if _model_cache is None:
+            model_path = os.path.join(APP_ROOT, 'table_tennis_model.pth')
+            if not os.path.exists(model_path):
+                return jsonify({'error': '找不到模型檔案'}), 500
+            _model_cache = load_model(model_path)
+        
+        model = _model_cache
+        
+        # 執行預測
+        result_str, confidence, probabilities = predict_video(model, save_path)
+        
+        # 將中文類別名稱映射到前端期望的格式
+        # '不標準' -> 'bad', '標準' -> 'good'
+        class_mapping = {
+            '不標準': 'bad',
+            '標準': 'good'
+        }
+        classification = class_mapping.get(result_str, 'normal')
+        
+        # 轉換機率為字典格式
+        prob_dict = {
+            'bad': float(probabilities[0]),
+            'good': float(probabilities[1])
+        }
+        
+        # 返回前端期望的格式
         return jsonify({
-            'predicted_class': result.get('predicted_class'),
-            'confidence': result.get('confidence'),
-            'probabilities': result.get('probabilities', {}),
+            'classification': classification,
+            'confidence': float(confidence),
+            'probabilities': prob_dict,
             'filename': filename
         })
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': f'分析時發生錯誤: {e}'}), 500
 
 
